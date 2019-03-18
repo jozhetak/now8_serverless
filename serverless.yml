@@ -1,0 +1,18 @@
+service: now8
+frameworkVersion: ">=1.1.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: python3.6
+  stage: dev
+  region: eu-west-1
+
+functions:
+  ping:
+    handler: functions/ping.main
+    events:
+      - http:
+          path: ping
+          method: get
+plugins:
+  - serverless-python-requirements
