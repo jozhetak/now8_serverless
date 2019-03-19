@@ -28,11 +28,11 @@ functions:
           path: ping
           method: get
 
-
   create_ride:
     handler: functions/create_ride.main
     environment:
-      FUNCTION_NAME: create_ride
+      BRANCH_KEY: ${file(branch_credentials.yml):BRANCH_KEY}
+      BRANCH_SECRET: ${file(branch_credentials.yml):BRANCH_SECRET}
     events:
       - http:
           path: create_ride

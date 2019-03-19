@@ -4,33 +4,37 @@ import datetime
 import json
 import os
 import boto3
+import requests
+
+# branch.io
 
 RIDE_LINK_SIZE = 20
+
+BRANCH_KEY = os.environ.get("BRANCH_KEY")
+
 dynamodb = boto3.resource('dynamodb')
 
 
 def main(event, context):
-
+    print("Branch Key: " + str(BRANCH_KEY))
     ride_uid = uid_generator(RIDE_LINK_SIZE)
     result = {
-        "Author": "Ofir Bar",
-        "App name": "now8",
-        "Description": "now8 is the best app out there!",
-        "Server time": str(datetime.datetime.now()),
-        "Function Environment Variable": os.environ.get("FUNCTION_NAME"),
-        "Provider Environment Variable": os.environ.get("PROVIDER_VARIABLE"),
-        "Ride Link:": ride_uid
+        "rideUID": ride_uid,
+        "driver": "some_driver",
+        "passengers:": [],
+        "time_created": str(datetime.datetime.now()),
     }
 
-    table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
+    rides_table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
 
-    item = {
+    ride = {
         'id': ride_uid,
-        'text': 'This is a new ride',
-        'saved to db at: ': str(datetime.datetime.now())
+        'driver': 'Some Driver ID',
+        'passengers': [],
+        'time_created': str(datetime.datetime.now())
     }
 
-    table.put_item(Item=item)
+    rides_table.put_item(Item=ride)
 
     return {
         'statusCode': 200,
