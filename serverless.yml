@@ -6,6 +6,8 @@ provider:
   runtime: python3.6
   stage: dev
   region: eu-west-1
+  environment:
+    PROVIDER_VARIABLE: I am a provider variable
 
 functions:
   ping:
@@ -14,5 +16,17 @@ functions:
       - http:
           path: ping
           method: get
+
+
+  create_ride:
+    handler: functions/create_ride.main
+    environment:
+      FUNCTION_NAME: create_ride
+    events:
+      - http:
+          path: create_ride
+          method: post
+
+
 plugins:
   - serverless-python-requirements
