@@ -32,7 +32,6 @@ functions:
     handler: functions/create_ride.main
     environment:
       BRANCH_KEY: ${file(branch_credentials.yml):BRANCH_KEY}
-      BRANCH_SECRET: ${file(branch_credentials.yml):BRANCH_SECRET}
     events:
       - http:
           path: create_ride
@@ -46,11 +45,11 @@ resources:
       Properties:
         AttributeDefinitions:
           -
-            AttributeName: id
+            AttributeName: rideUID
             AttributeType: S
         KeySchema:
           -
-            AttributeName: id
+            AttributeName: rideUID
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
