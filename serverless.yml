@@ -37,6 +37,13 @@ functions:
           path: create_ride
           method: post
 
+  join_ride:
+    handler: functions/join_ride.main
+    events:
+      - http:
+          path: join_ride
+          method: put
+
 resources:
   Resources:
     RidesDynamoDbTable:

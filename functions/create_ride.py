@@ -22,14 +22,14 @@ def main(event, context):
     ride = {
         "rideUID": ride_uid,
         "driver": "some_driver",
-        "passengers:": [],
+        "passengers": [],
         "time_created": str(datetime.datetime.now()),
         "join_ride_url": join_ride_url
     }
 
-    rides_table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
+    rides_table_client = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
 
-    rides_table.put_item(Item=ride)
+    rides_table_client.put_item(Item=ride)
     return {
         'statusCode': 200,
         'headers': {'Content-Type': 'application/json'},
