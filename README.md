@@ -10,7 +10,7 @@ This version is all the backend code for Now8, including code to generate the ba
 - All the backend code, including the backend infrastracture is written using the serverless framework
 
 - AWS Lambda to create all the required functions (create_ride, join_ride,etc)
-- AWS API Gateway to trigger Lambda functions via the Mobile clients, which must get auth token to run
+- AWS API Gateway to trigger Lambda functions via the Mobile clients, which must get main token to run
 - AWS DynamoDB (stores all the rides)
 - AWS Cloudformation (used with the serverless framework. the backend infrastructure serverless.yml is translated to CloudFormation)
 - Auth0 - Used for signin/signup UI flow, and authenticate API requests

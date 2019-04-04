@@ -27,11 +27,17 @@ functions:
       - http:
           path: ping
           method: get
+          authorizer:
+            name: lambda_functions_authorizer
+            resultTtlInSeconds: 500
+            identitySource: method.request.header.Authorization
+            type: token
+          cors: true
 
   create_ride:
     handler: functions/create_ride.main
     environment:
-      BRANCH_KEY: ${file(branch_credentials.yml):BRANCH_KEY}
+      BRANCH_KEY: ${file(env-secrets.yml):BRANCH_KEY}
     events:
       - http:
           path: create_ride
@@ -44,10 +50,14 @@ functions:
           path: join_ride
           method: put
 
+  lambda_functions_authorizer:
+    handler: functions/lambda_functions_authorizer.main
+    cors: true
+
 resources:
   Resources:
     RidesDynamoDbTable:
-      Type: 'AWS::DynamoDB::Table'
+      Type: AWS::DynamoDB::Table
       DeletionPolicy: Retain
       Properties:
         AttributeDefinitions:
@@ -63,6 +73,29 @@ resources:
           WriteCapacityUnits: 1
         TableName: ${self:provider.environment.DYNAMODB_TABLE}
 
+
+    # This response is needed for custom authorizer failures cors support ¯\_(ツ)_/¯
+    GatewayResponse:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: EXPIRED_TOKEN
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+        StatusCode: '401'
+
+    AuthFailureGatewayResponse:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: UNAUTHORIZED
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+        StatusCode: '401'
 
 plugins:
   - serverless-python-requirements
