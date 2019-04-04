@@ -1,43 +1,32 @@
 import json
-# import os
-#
-# import jwt
-#
-# from cryptography.hazmat.backends import default_backend
-# from cryptography.x509 import load_pem_x509_certificate
-#
-# PyJWT==1.7.1
-# cryptography==2.6.1
+import os
+import jwt
+from cryptography.hazmat.backends import default_backend
+from cryptography.x509 import load_pem_x509_certificate
 
-# Set by serverless.yml
-# AUTH0_CLIENT_ID = os.getenv('AUTH0_CLIENT_ID')
-# AUTH0_CLIENT_PUBLIC_KEY = os.getenv('AUTH0_CLIENT_PUBLIC_KEY')
-# import logging
+
+AUTH0_CLIENT_ID = os.getenv('AUTH0_CLIENT_ID')
+AUTH0_CLIENT_PUBLIC_KEY = os.getenv('AUTH0_CLIENT_PUBLIC_KEY')
 
 
 def main(event, context):
 
-    policy = generate_policy('I_am_harcoded_principal_id', 'Allow', event['methodArn'])
-    return policy
+    whole_auth_token = event.get('authorizationToken')
+    token_parts = whole_auth_token.split(' ')
+    auth_token = token_parts[1]
+    token_method = token_parts[0]
 
-    # logger = logging.getLogger()
-    # logger.setLevel(logging.INFO)
-    #
-    # logger.info('got some info from lambda_functions_authorizer.py')
-    # logger.error('some error from lambda_functions_authorizer.py')
-    # return "hello world, from lambda_functions_authorizer.py"
+    if whole_auth_token is None:
+        raise Exception("Missing Authorization Token")
 
+    if not (token_method.lower() == 'bearer'):
+        print("Received Invalid Token Method, tokens should be sent as Bearer Tokens")
+        raise Exception('Invalid Token Format')
 
-
-#
-#     whole_auth_token = event.get('authorizationToken')
-#     if 'allow' in whole_auth_token:
-#         raise Exception('Allowed!!!!')
-#
-
-#
-#
-#
+    print('Client token: ' + whole_auth_token)
+    print('Method ARN: ' + event['methodArn'])
+    print('Client Id:' + AUTH0_CLIENT_ID)
+    print("Public key:" + str(AUTH0_CLIENT_PUBLIC_KEY))
 
 
 def generate_policy(principal_id, effect, resource):
@@ -55,17 +44,7 @@ def generate_policy(principal_id, effect, resource):
             ]
         }
     }
-#     print('Client token: ' + whole_auth_token)
-#     print('Method ARN: ' + event['methodArn'])
-#
-#     token_parts = whole_auth_token.split(' ')
-#     auth_token = token_parts[1]
-#     token_method = token_parts[0]
-#
-#     if not (token_method.lower() == 'bearer' and auth_token):
-#         print("Failing due to invalid token_method or missing auth_token")
-#         raise Exception('Unauthorized')
-#
+
 #     try:
 #         principal_id = jwt_verify(auth_token, AUTH0_CLIENT_PUBLIC_KEY)
 #         policy = generate_policy(principal_id, 'Allow', event['methodArn'])

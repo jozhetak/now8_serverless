@@ -52,6 +52,9 @@ functions:
 
   lambda_functions_authorizer:
     handler: functions/lambda_functions_authorizer.main
+    environment:
+      AUTH0_CLIENT_ID: ${file(env-secrets.yml):AUTH0_CLIENT_ID}
+      AUTH0_CLIENT_PUBLIC_KEY: ${file(./public_key)}
     cors: true
 
 resources:
@@ -96,6 +99,13 @@ resources:
         RestApiId:
           Ref: 'ApiGatewayRestApi'
         StatusCode: '401'
+
+# Importing modules such as cryptography on MacOS will create binaries specific to MacOS
+# Since AWS Lambda uses Linux, these MacOS-specific binaries will not work once uploaded to AWS Lambda
+# The custom solution below will use Docker to create the binaries as Linux
+custom:
+  pythonRequirements:
+    dockerizePip: true
 
 plugins:
   - serverless-python-requirements
