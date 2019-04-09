@@ -56,7 +56,7 @@ def generate_policy(principal_id, effect, resource):
 
                 }
             ]
-        }
+        },
     }
 
 
