@@ -42,6 +42,12 @@ functions:
       - http:
           path: create_ride
           method: post
+          authorizer:
+            name: lambda_functions_authorizer
+            resultTtlInSeconds: 500
+            identitySource: method.request.header.Authorization
+            type: token
+          cors: true
 
   join_ride:
     handler: functions/join_ride.main
@@ -49,6 +55,12 @@ functions:
       - http:
           path: join_ride
           method: put
+          authorizer:
+            name: lambda_functions_authorizer
+            resultTtlInSeconds: 500
+            identitySource: method.request.header.Authorization
+            type: token
+          cors: true
 
   lambda_functions_authorizer:
     handler: functions/lambda_functions_authorizer.main
