@@ -6,22 +6,22 @@ dynamodb = boto3.resource('dynamodb')
 
 
 def main(event, context):
+    print("Printing the handler function event to console... ")
     print(event)
-    print("type of event:" + str(type(event)))
-    data = event['queryStringParameters']  # SEX !!! JUST TO GRAB UR ATTENTION
-    print("type of data:" + str(type(data)))
 
-    if 'rideUID' not in data:
-        print("Join ride request must include the rideUID")
+    event_query_parameters = event['queryStringParameters']
+    passenger_id = event['requestContext']['authorizer']['principalId']
+
+    if 'rideUID' not in event_query_parameters:
+        print("Request to join a ride must include a rideUID")
         raise Exception("Couldn't update the passengers in this ride, no rideUID found")
-    print("RideUID in Data: " + data.get('rideUID'))
+    print("RideUID found:" + event_query_parameters.get('rideUID'))
 
+    ride_uid = event_query_parameters.get('rideUID')
     rides_table_client = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
-    ride_uid = data.get('rideUID')
-    print("type of ride_uid:" + str(type(ride_uid)))
-    print("ride uid: " + ride_uid)
 
-    # Updates the "passengers" attribute in a specific rideUID item, in dynamoDB
+
+    # Updates the "passengers" attribute in a specific rideUID item, in DynamoDB
     response = rides_table_client.update_item(
         TableName='now8-dev',
         Key={
@@ -32,7 +32,7 @@ def main(event, context):
             '#passengersList': 'passengers'
         },
         ExpressionAttributeValues={
-            ':newPassengerValue': ["DuduAharon"]  # TODO: add a dynamic username here (of the newly joined passenger)
+            ':newPassengerValue': [passenger_id]
         },
         ReturnValues="UPDATED_NEW"
     )
