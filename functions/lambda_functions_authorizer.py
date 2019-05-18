@@ -14,18 +14,19 @@ AUTH0_CLIENT_PUBLIC_KEY = os.getenv('AUTH0_CLIENT_PUBLIC_KEY')
 def main(event, context):
     whole_auth_token = event.get('authorizationToken')
     if not whole_auth_token:
-        raise Exception('Unauthorized')
+        print('No Authentication Token in the request')
+        raise Exception('No Authentication Token in the request')
 
     print('Client token: ' + whole_auth_token)
     print('Method ARN: ' + event['methodArn'])
 
     token_parts = whole_auth_token.split(' ')
-    auth_token = token_parts[1]
     token_method = token_parts[0]
+    auth_token = token_parts[1]
 
     if not (token_method.lower() == 'bearer' and auth_token):
-        print("Failing due to invalid token_method or missing auth_token")
-        raise Exception('Unauthorized')
+        print("Failing due to invalid format (Bearer) or invalid token")
+        raise Exception('Failing due to invalid format (Bearer) or invalid token')
 
     try:
         principal_id = jwt_verify(auth_token, AUTH0_CLIENT_PUBLIC_KEY)
@@ -40,7 +41,7 @@ def jwt_verify(auth_token, public_key):
     public_key = format_public_key(public_key)
     pub_key = convert_certificate_to_pem(public_key)  # pub_key is a PEM-encoded certificate with a public key
     payload = jwt.decode(auth_token, pub_key, algorithms=['RS256'], audience=AUTH0_CLIENT_ID)
-    return payload['sub']
+    return payload['nickname'] + '@' + payload['sub']
 
 
 def generate_policy(principal_id, effect, resource):

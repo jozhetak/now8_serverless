@@ -1,31 +1,29 @@
 import boto3
 import json
-import logging
 import os
 
 dynamodb = boto3.resource('dynamodb')
 
-HARD_CODED_RIDE_UID_FOR_TESTING = "NZJs40Nts2ShOXfk29JI" # A hard-coded rideUID, that exists in DynamoDB, for testing only.
 
 def main(event, context):
+    print(event)
+    print("type of event:" + str(type(event)))
+    data = event['queryStringParameters']  # SEX !!! JUST TO GRAB UR ATTENTION
+    print("type of data:" + str(type(data)))
 
-
-#TODO: Throw exception if the event from API Gateway didn't sent a rideUID String
-
-#    data = json.loads(event['body'])
-#    if 'rideUID' not in data:
-#        logging.error("Join ride request must include the rideUID")
-#        raise Exception("Couldn't update the passengers in this ride")
-#        return
+    if 'rideUID' not in data:
+        print("Join ride request must include the rideUID")
+        raise Exception("Couldn't update the passengers in this ride, no rideUID found")
+    print("RideUID in Data: " + data.get('rideUID'))
 
     rides_table_client = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
-    # ride_uid = data["rideUID"]
-
-    ride_uid = HARD_CODED_RIDE_UID_FOR_TESTING  # TODO: Change this to get the rideUID from the event, right now the rideUID is hard-coded
+    ride_uid = data.get('rideUID')
+    print("type of ride_uid:" + str(type(ride_uid)))
+    print("ride uid: " + ride_uid)
 
     # Updates the "passengers" attribute in a specific rideUID item, in dynamoDB
     response = rides_table_client.update_item(
-        TableName='now8-dev',  # TODO: change the TableName to retrieve it automatically, and don't hardcode now8-dev.
+        TableName='now8-dev',
         Key={
             'rideUID': ride_uid
         },

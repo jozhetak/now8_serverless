@@ -18,6 +18,8 @@ dynamodb = boto3.resource('dynamodb')
 def main(event, context):
     ride_uid = uid_generator(RIDE_LINK_SIZE)
     join_ride_url = get_join_ride_url(ride_uid)
+    print(event)
+    print(event['requestContext']['authorizer']['principalId'])
     driver = event['requestContext']['authorizer']['principalId']
 
     ride = {
