@@ -17,6 +17,10 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
+        - dynamodb:DescribeStream
+        - dynamodb:GetRecords
+        - dynamodb:GetShardIterator
+        - dynamodb:ListStreams
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
 
 
@@ -69,6 +73,12 @@ functions:
       AUTH0_CLIENT_PUBLIC_KEY: ${file(./public_key)}
     cors: true
 
+  on_passengers_in_ride_changed:
+    handler: functions/on_passengers_in_ride_changed.main
+    events:
+      - stream: arn:aws:dynamodb:eu-west-1:541331543556:table/now8-dev/stream/2019-05-26T21:43:27.400
+
+
 resources:
   Resources:
     RidesDynamoDbTable:
@@ -87,6 +97,9 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        StreamSpecification:
+          StreamViewType: NEW_IMAGE
+
 
 
     # This response is needed for custom authorizer failures cors support ¯\_(ツ)_/¯
